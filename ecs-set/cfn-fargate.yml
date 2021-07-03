@@ -19,6 +19,20 @@ Parameters:
   ECSTaskDesiredCount:
     Type: Number
     Default: 1
+  DBMasterUserName:
+    Type: String
+  DBMasterUserPassword:
+    NoEcho: true
+    Type: String
+  MySQLVersion:
+    Default: 5.7.26
+    Type: String
+  DBInstanceClass:
+    Default: db.t2.micro
+    Type: String
+  RDSStorageSize:
+    Default: "20"
+    Type: String
 
 Resources:
   ELB:
@@ -260,6 +274,39 @@ Resources:
           ContainerPort: 80
           TargetGroupArn: !Ref ELBTargetGroup
       PropagateTags: SERVICE
+
+  # RDS
+  DBInstance:
+    Properties:
+      AllocatedStorage: !Ref "RDSStorageSize"
+      DBInstanceClass: !Ref "DBInstanceClass"
+      DBInstanceIdentifier: !Sub ${EnvironmentName}-rds
+      DBName: !Sub ${EnvironmentName}_rds
+      DBSubnetGroupName: !Ref "RDSSubnetGroup"
+      Engine: mysql
+      EngineVersion: !Ref "MySQLVersion"
+      MasterUserPassword: !Ref "DBMasterUserPassword"
+      MasterUsername: !Ref "DBMasterUserName"
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - {
+            "Fn::ImportValue":
+              !Join ["-", [!Ref EnvironmentName, DefaultSecurityGroup]],
+          }
+    Type: AWS::RDS::DBInstance
+  RDSSubnetGroup:
+    Properties:
+      DBSubnetGroupDescription: subnet group for rds
+      DBSubnetGroupName: !Sub ${EnvironmentName}-rds-subnet-group
+      SubnetIds:
+        !Split [
+          ",",
+          {
+            "Fn::ImportValue":
+              !Join ["-", [!Ref EnvironmentName, "PrivateSubnets"]],
+          },
+        ]
+    Type: AWS::RDS::DBSubnetGroup
 
 Outputs:
   URLofPublish:
