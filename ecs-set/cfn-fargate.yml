@@ -104,32 +104,6 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref ELBTargetGroup
 
-  ECSServiceRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      RoleName: !Sub "${AWS::StackName}-ecs-servicerole"
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: ""
-            Effect: Allow
-            Principal:
-              Service: ecs.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: default
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ec2:AuthorizeSecurityGroupIngress"
-                  - "ec2:Describe*"
-                  - "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
-                  - "elasticloadbalancing:DeregisterTargets"
-                  - "elasticloadbalancing:Describe*"
-                  - "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
-                  - "elasticloadbalancing:RegisterTargets"
-                Resource: "*"
   ECSExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -144,30 +118,6 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  ECSAutoScaleRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      RoleName: !Sub "${AWS::StackName}-ecs-autoscale"
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - "application-autoscaling.amazonaws.com"
-            Action:
-              - "sts:AssumeRole"
-      Policies:
-        - PolicyName: application-scaling
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ecs:DescribeServices"
-                  - "ecs:UpdateService"
-                  - "cloudwatch:PutMetricAlarm"
-                  - "cloudwatch:DescribeAlarms"
-                  - "cloudwatch:DeleteAlarms"
-                Resource: "*"
 
   ECSCluster:
     Type: "AWS::ECS::Cluster"
