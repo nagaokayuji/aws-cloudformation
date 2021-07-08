@@ -7,7 +7,6 @@ Parameters:
     Description: refs vpc stack
   DockerImage:
     Type: String
-    Default: 983627551655.dkr.ecr.ap-northeast-1.amazonaws.com/sample:latest
   ECSTaskCPUUnit:
     AllowedValues: [256, 512, 1024, 2048, 4096]
     Type: String
